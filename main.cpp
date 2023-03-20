@@ -121,7 +121,8 @@ int main(int argc, const char* argv[]) {
                 case SDL_QUIT: {
                     open = false;
                 } break;
-
+                
+                // To-do: Improve keyrepeat
                 case SDL_KEYDOWN: {
                     switch (event.key.keysym.sym) {
                         case SDLK_LEFT: {

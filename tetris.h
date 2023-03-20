@@ -1,4 +1,3 @@
-
 #ifdef __cplusplus
 #pragma once
 #include <cstdint>
@@ -89,7 +88,6 @@ static const unsigned tetromino_sizes[7] = {
 };
 
 struct tetromino_t {
-    // We only use the 4 LSBs of each byte
     uint8_t buf[4 * 4];
 
     unsigned x, y;
@@ -116,11 +114,11 @@ void tetromino_rotate(tetromino_t* ttr, bool cw) {
     std::memcpy(ttr->buf, &pieces[ttr->type][ttr->rot * (4 * 4)], 4 * 4);
 }
 
+// 20x10 + edges
 #define TRIS_PF_WIDTH  12
 #define TRIS_PF_HEIGHT 21
 
 struct tetris_t {
-    // 40x10 + edges
     uint8_t playfield[TRIS_PF_WIDTH * TRIS_PF_HEIGHT];
 
     uint8_t next;
@@ -140,6 +138,7 @@ unsigned get_random_tetromino() {
 void tris_spawn_tetromino(tetris_t* tris) {
     tetromino_init(tris->current, tris->next);
 
+    // To-do: Better centering needed
     tris->current->x = (TRIS_PF_WIDTH / 2) - (4 - tris->current->size);
     tris->current->y = 0;
 
@@ -172,6 +171,8 @@ void tris_init(tetris_t* tris) {
 #define LEFT  1
 #define RIGHT 2
 
+// To-do: Take piece size into account to minimize
+// "block empty" checks.
 bool tris_check_collision(tetris_t* tris, int offx, int offy) {
     int tx = tris->current->x;
     int ty = tris->current->y;
@@ -225,6 +226,7 @@ bool tris_move_tetromino(tetris_t* tris, int direction) {
     return false;
 }
 
+// To-do: Somehow optimize this?
 void tris_collapse_down(tetris_t* tris, int line) {
     for (int y = line; y > 0; y--) {
         for (int x = 1; x < TRIS_PF_WIDTH - 1; x++) {
@@ -241,6 +243,8 @@ bool tris_tick(tetris_t* tris) {
     if (!tris_move_tetromino(tris, DOWN)) {
         int tx = tris->current->x;
         int ty = tris->current->y;
+
+        // To-do: Again, take piece size into account
 
         // Copy tetromino to playfield
         for (int y = 0; y < 4; y++) {
@@ -271,9 +275,11 @@ bool tris_tick(tetris_t* tris) {
         // Spawn a new tetromino
         tris_spawn_tetromino(tris);
 
+        // Move is done
         return true;
     }
 
+    // Still falling
     return false;
 }
 
