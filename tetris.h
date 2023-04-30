@@ -157,6 +157,8 @@ tetris_t* tris_create() {
 }
 
 void tris_destroy(tetris_t* tris) {
+    tetromino_destroy(tris->current);
+
     delete tris;
 }
 #else
@@ -172,6 +174,8 @@ tetris_t* tris_create() {
 }
 
 void tris_destroy(tetris_t* tris) {
+    tetromino_destroy(tris->current);
+
     free(tris);
 }
 #endif
