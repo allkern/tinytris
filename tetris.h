@@ -8,11 +8,12 @@
 #define MEMCPY std::memcpy
 #define MEMSET std::memset
 #else
-#include "stdint.h"
-#include "string.h"
-#include "stdlib.h"
-#include "stdio.h"
-#include "time.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <stdbool.h>
 #define MEMCPY memcpy
 #define MEMSET memset
 #endif
