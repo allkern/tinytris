@@ -33,7 +33,7 @@ void draw_ghost_tetromino(tetris_t* tris, uint32_t* buf) {
         }
     }
 
-    delete tris->current;
+    tetromino_destroy(tris->current);
 
     // Restore current tetromino
     tris->current = copy;
@@ -146,11 +146,11 @@ int main(int argc, const char* argv[]) {
                             tetromino_rotate(tris->current, true);
 
                             if (TRIS_CHECK_COLLISION_DOWN(tris)) {
-                                delete tris->current;
+                                tetromino_destroy(tris->current);
 
                                 tris->current = copy;
                             } else {
-                                delete copy;
+                                tetromino_destroy(copy);
                             }
                         } break;
 
@@ -162,6 +162,8 @@ int main(int argc, const char* argv[]) {
             }
         }
     }
+
+    tris_destroy(tris);
 
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
