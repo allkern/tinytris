@@ -5,12 +5,16 @@
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
+#define MEMCPY std::memcpy
+#define MEMSET std::memset
 #else
 #include "stdint.h"
 #include "string.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "time.h"
+#define MEMCPY memcpy
+#define MEMSET memset
 #endif
 
 #if (!defined(_TETRIS_H)) || defined(__cplusplus)
@@ -87,6 +91,7 @@ static const unsigned tetromino_sizes[7] = {
     4, 3, 3, 2, 3, 3, 3
 };
 
+#ifdef __cplusplus
 struct tetromino_t {
     uint8_t buf[4 * 4];
 
@@ -98,8 +103,28 @@ tetromino_t* tetromino_create() {
     return new tetromino_t;
 }
 
+void tetromino_destroy(tetromino_t* ttr) {
+    delete ttr;
+}
+#else
+typedef struct {
+    uint8_t buf[4 * 4];
+
+    unsigned x, y;
+    unsigned size, rot, type;
+} tetromino_t;
+
+tetromino_t* tetromino_create() {
+    return malloc(sizeof(tetromino_t));
+}
+
+void tetromino_destroy(tetromino_t* ttr) {
+    free(ttr);
+}
+#endif
+
 void tetromino_init(tetromino_t* ttr, int type) {
-    std::memcpy(ttr->buf, pieces[type], 4 * 4);
+    MEMCPY(ttr->buf, pieces[type], 4 * 4);
 
     ttr->x = 0;
     ttr->y = 0;
@@ -111,13 +136,14 @@ void tetromino_init(tetromino_t* ttr, int type) {
 void tetromino_rotate(tetromino_t* ttr, bool cw) {
     ttr->rot = (ttr->rot + (cw ? 1 : (-1))) & 3;
 
-    std::memcpy(ttr->buf, &pieces[ttr->type][ttr->rot * (4 * 4)], 4 * 4);
+    MEMCPY(ttr->buf, &pieces[ttr->type][ttr->rot * (4 * 4)], 4 * 4);
 }
 
 // 20x10 + edges
 #define TRIS_PF_WIDTH  12
 #define TRIS_PF_HEIGHT 21
 
+#ifdef __cplusplus
 struct tetris_t {
     uint8_t playfield[TRIS_PF_WIDTH * TRIS_PF_HEIGHT];
 
@@ -128,6 +154,26 @@ struct tetris_t {
 tetris_t* tris_create() {
     return new tetris_t;
 }
+
+void tris_destroy(tetris_t* tris) {
+    delete tris;
+}
+#else
+typedef struct {
+    uint8_t playfield[TRIS_PF_WIDTH * TRIS_PF_HEIGHT];
+
+    uint8_t next;
+    tetromino_t* current;
+} tetris_t;
+
+tetris_t* tris_create() {
+    return malloc(sizeof(tetris_t));
+}
+
+void tris_destroy(tetris_t* tris) {
+    free(tris);
+}
+#endif
 
 unsigned get_random_tetromino() {
     srand(time(NULL));
@@ -146,7 +192,7 @@ void tris_spawn_tetromino(tetris_t* tris) {
 }
 
 void tris_init(tetris_t* tris) {
-    std::memset(tris->playfield, 0, (TRIS_PF_WIDTH * sizeof(uint8_t)) * (TRIS_PF_HEIGHT * sizeof(uint8_t)));
+    MEMSET(tris->playfield, 0, (TRIS_PF_WIDTH * sizeof(uint8_t)) * (TRIS_PF_HEIGHT * sizeof(uint8_t)));
 
     tris->next = get_random_tetromino();
     tris->current = tetromino_create();
